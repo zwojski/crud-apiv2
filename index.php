@@ -2,19 +2,28 @@
 
 declare(strict_types=1);
 
+require_once __DIR__.'/src/Database.php';
+require_once __DIR__.'/src/ErrorHandler.php';
+
 spl_autoload_register(function ($class) {
-    require __DIR__ . "/src/controllers/$class.php";
+     $file = __DIR__ . "/src/controllers/$class.php";
+
+     if ( file_exists($file) ) {
+            require $file;
+        }
 });
 spl_autoload_register(function ($class) {
-    require __DIR__ . "/src/services/$class.php";
+    $file = __DIR__ . "/src/services/$class.php";
+
+        if ( file_exists($file) ) {
+                require $file;
+            }
 });
 
 set_error_handler("ErrorHandler::handleError");
 set_exception_handler("ErrorHandler::handleException");
 
-
 header("Content-type: application/json; charset=UTF-8");
-
 
 $parts = explode("/" , $_SERVER["REQUEST_URI"]);
 
