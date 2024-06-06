@@ -25,21 +25,47 @@ set_exception_handler("ErrorHandler::handleException");
 
 header("Content-type: application/json; charset=UTF-8");
 
-$parts = explode("/" , $_SERVER["REQUEST_URI"]);
+$parts = explode("/", trim($_SERVER["REQUEST_URI"], "/"));
 
-if ($parts[1] != "products") {
-    http_response_code(404);
-    exit;
-}
-
-$id = $parts[2] ?? null;
+$entity = $parts[0] ?? null;
+$id = $parts[1] ?? null;
 
 $database = new Database("localhost", "product_db", "root", "12345!");
 
-$gateway = new ProductService($database);
+switch ($entity) {
+    case 'products':
+        $gateway = new ProductService($database);
+        $controller = new ProductController($gateway);
+        break;
 
-$controller = new ProductController($gateway);
+    case 'users':
+        $gateway = new UserService($database);
+        $controller = new UserController($gateway);
+        break;
+
+    default:
+        http_response_code(404);
+        echo json_encode(["status" => "error", "message" => "Not Found"]);
+        exit;
+}
 
 $controller->processRequest($_SERVER["REQUEST_METHOD"], $id);
+
+
+// $parts = explode("/" , $_SERVER["REQUEST_URI"]);
+
+// if ($parts[1] != "products") {
+//     http_response_code(404);
+//     exit;
+// }
+
+// $id = $parts[2] ?? null;
+
+// $database = new Database("localhost", "product_db", "root", "12345!");
+
+// $gateway = new ProductService($database);
+
+// $controller = new ProductController($gateway);
+// $controller->processRequest($_SERVER["REQUEST_METHOD"], $id);
 
 
